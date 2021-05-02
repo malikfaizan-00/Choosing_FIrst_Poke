@@ -1,0 +1,85 @@
+---
+title: "Choosing the Best Pokemon Character"
+author: "Mick"
+date: "4/26/2021"
+output: pdf_document
+        fig_width: 9
+        fig_height: 7
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,message = FALSE,error=FALSE)
+library(ggplot2)
+library(scales)
+library(dplyr)
+library(tidyr)
+library(dlookr)
+library(flextable)
+library(ggtext)
+```
+
+## Choosing Your First Pokemon
+
+### Data Loading
+
+## Descriptive Stats
+
+```{r}
+rm(list=ls())
+pokemon <- read.csv("./ChoosingYourFirstPokemon.csv") 
+pokemon_df <- pokemon %>% filter(Type.1 %in% c("Grass","Water","Fire") & Generation ==1)
+
+pokemon_df <- pokemon_df %>% filter(!Name %in% c("VenusaurMega Venusaur","CharizardMega Charizard X",
+                                             "CharizardMega Charizard Y","GyaradosMega Gyarados",
+                                             "BlastoiseMega Blastoise","SlowbroMega Slowbro"))
+
+```
+
+
+```{r}
+pokemon_df %>% select(Total:Speed) %>% diagnose_numeric() %>% flextable()
+```
+```{r}
+pokemon_df %>% flextable()
+```
+
+```{r}
+barplot(table(pokemon_df$Type.1),main="Count by Charactor Type")
+```
+
+```{r}
+pokemon_db <- pokemon_df %>% filter(Name %in% c("Bulbasaur","Squirtle","Charmander") & Generation ==1)
+poke_across <- pokemon_df %>% group_by(Type.1) %>%
+  summarise(across(Total:Speed,list(Mean = mean, Median= median )))
+poke_longer <- poke_across %>% pivot_longer(Total_Mean:Speed_Median,values_to = "Skills")
+```
+
+### Plot By Type.1 Grass
+
+```{r}
+
+pokemon_grass <- pokemon_df  %>% filter(Type.1 =="Grass")
+ggplot(data=pokemon_grass,aes(x=Total,y=Name)) + geom_col() +
+  labs(title="Comparing Character's from Type.1 of Grass") +
+  geom_vline(data=pokemon_grass, aes(xintercept = mean(Total)))
+  
+
+```
+
+
+### Plot By Type.1 Fire
+
+```{r}
+pokemon_fire <-pokemon_df  %>% filter(Type.1 =="Fire")
+ggplot(data=pokemon_fire,aes(x=Total,y=Name)) + geom_col() +
+  labs(title="Comparing Character's from Type.1 of Fire") +
+  geom_vline(data=pokemon_fire, aes(xintercept = mean(Total)))
+```
+### Plot By Type.1 Water
+
+```{r}
+pokemon_water <-pokemon_df  %>% filter(Type.1 =="Water")
+ggplot(data=pokemon_water,aes(x=Total,y=Name)) + geom_col() +
+  labs(title="Comparing Character's from Type.1 of Water") +
+  geom_vline(data=pokemon_water, aes(xintercept = mean(Total)))
+```
